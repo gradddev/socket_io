@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:socket_io/socket_io.dart';
 
@@ -18,14 +16,19 @@ class _MyAppState extends State<MyApp> {
   }
 
   initialize() async {
-    final uri = 'http://192.168.1.38:8080';
+    const uri = 'http://192.168.1.39:8080';
     final socket = await SocketIo.newInstance(uri);
-    await socket.on("string", (string) {
-      print(string);
+    await socket.on(SocketIoEvent.connecting, () {
+      print('Connecting...');
     });
-    await socket.on("encodedJson", (encodedJson) {
-      final decodedJson = json.decode(encodedJson);
-      print(decodedJson);
+    await socket.on(SocketIoEvent.connect, () {
+      print('Connected.');
+    });
+    await socket.on(SocketIoEvent.connectError, (error) {
+      print('Error: $error');
+    });
+    await socket.on('sayHello', (greeting) {
+      print(greeting);
     });
     await socket.connect();
   }

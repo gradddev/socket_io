@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -10,9 +11,9 @@ class SocketIo {
 
   static _getChannelName({String instanceId}) {
     if (instanceId != null) {
-      return "semigradsky.com/socket.io/$instanceId";
+      return 'semigradsky.com/socket.io/$instanceId';
     }
-    return "semigradsky.com/socket.io";
+    return 'semigradsky.com/socket.io';
   }
 
   static Future<SocketIo> newInstance(String uri) async {
@@ -37,19 +38,26 @@ class SocketIo {
     eventChannel.receiveBroadcastStream().listen(
       (data) {
         final String eventName = data['eventName'];
-        final List<dynamic> arguments = data['arguments'] ?? [];
+        List<dynamic> arguments = (data['arguments'] ?? []).map((argument) {
+          try {
+            final decodedJson = json.decode(argument);
+            return decodedJson;
+          } catch (error) {
+            return argument;
+          }
+        }).toList();
         if (_listeners.containsKey(eventName)) {
           _listeners[eventName].forEach((listener) {
             Function.apply(listener, arguments);
           });
         }
       },
-      onError: (error) {
-        print("error: $error");
-      },
+      cancelOnError: true,
     );
   }
 
+  final String uri;
+  final String instanceId;
   final Map<String, List<Function>> _listeners = {};
 
   connect() async {
@@ -68,7 +76,18 @@ class SocketIo {
     }
     _listeners[eventName].add(listener);
   }
+}
 
-  final String uri;
-  final String instanceId;
+class SocketIoEvent {
+  static const connect = 'connect';
+  static const connecting = 'connecting';
+  static const connectError = 'connect_error';
+  static const connectTimeout = 'connect_timeout';
+  static const reconnect = 'reconnect';
+  static const reconnectError = 'reconnect_error';
+  static const reconnectFailed = 'reconnect_failed';
+  static const reconnectAttempt = 'reconnect_attempt';
+  static const reconnecting = 'reconnecting';
+  static const ping = 'ping';
+  static const pong = 'pong';
 }

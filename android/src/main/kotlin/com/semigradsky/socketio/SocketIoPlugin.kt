@@ -1,13 +1,15 @@
 package com.semigradsky.socketio
 
 import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.socket.client.IO
 import io.socket.client.Socket
+import io.socket.emitter.Emitter
+import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
 import java.util.logging.Logger
@@ -34,8 +36,6 @@ class SocketIoPlugin private constructor(private val registrar: Registrar) : Met
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
-    logger.info("Method: ${call.method}")
-    logger.info("Arguments: ${call.arguments}")
     when (call.method) {
       "newInstance" -> {
         val uri = call.argument<String>("uri")
@@ -69,6 +69,8 @@ class SocketIoPlugin private constructor(private val registrar: Registrar) : Met
 
   private fun newInstance(uri: String): String {
     val instanceId = generateInstanceId()
+    // TODO: add hostname verifier
+    // TODO: add ssl certificate verifier
     val socket = IO.socket(uri)
     val eventChannel = EventChannel(
       registrar.messenger(),
@@ -88,32 +90,10 @@ class SocketIoPlugin private constructor(private val registrar: Registrar) : Met
       }
     })
 
-    val eventNames = getSocketIoEventNames()
-    for (eventName in eventNames) {
-      socket.on(eventName, {
-        val eventSink = eventSinks[instanceId]
-        eventSink?.success(mapOf(
-          "eventName" to eventName
-        ))
-      })
-    }
-
     sockets[instanceId] = socket
     eventChannels[instanceId] = eventChannel
 
     return instanceId
-  }
-
-  private fun getSocketIoEventNames(): List<String> {
-    val eventTypes = mutableListOf<String>()
-    val fields = Socket::class.java.fields
-    for (field in fields) {
-      val name = field.name
-      if (!name.startsWith("EVENT_")) continue
-      val eventType = field.get(null).toString()
-      eventTypes.add(eventType)
-    }
-    return eventTypes
   }
 
   private fun connect(instanceId: String) {
@@ -124,26 +104,27 @@ class SocketIoPlugin private constructor(private val registrar: Registrar) : Met
   private fun on(instanceId: String, eventName: String) {
     val socket = sockets[instanceId]
     val eventSink = eventSinks[instanceId]
-    socket?.on(eventName, { rawArguments ->
-      val arguments = mutableListOf<Any>()
-      for (rawArgument in rawArguments) {
-        if (!isArgumentTypeSupported(rawArgument)) {
-          eventSink?.error("Unsupported type: ${rawArgument.javaClass.name}", null, null)
-          return@on
-        }
-        arguments.add(rawArgument)
-      }
-      eventSink?.success(mapOf(
-        "eventName" to eventName,
-        "arguments" to arguments
-      ))
-    })
-  }
+    val listener = Emitter.Listener({ it ->
+      val arguments = it.toList().map { argument ->
+        when (argument) {
+          is JSONArray -> return@map argument.toString()
+          is JSONObject -> return@map argument.toString()
+          is Throwable -> {
 
-  private fun isArgumentTypeSupported(argument: Any): Boolean {
-    return when (argument) {
-      is String -> true
-      else -> false
-    }
+            return@Listener
+          }
+          else -> return@map argument
+        }
+      }
+      try {
+        eventSink?.success(mapOf(
+          "eventName" to eventName,
+          "arguments" to arguments
+        ))
+      } catch (t: Throwable) {
+        eventSink?.error(t.javaClass.name, t.message, t.stackTrace.toString())
+      }
+    })
+    socket?.on(eventName, listener)
   }
 }
