@@ -11,8 +11,9 @@ For help on editing plugin code, view the [documentation](https://flutter.io/pla
 ## Example
 
 ### Client
+#### Code
 ```dart
-const uri = 'http://192.168.1.39:8080';
+const uri = 'http://192.168.1.38:8080';
 final socket = await SocketIO.createNewInstance(uri);
 await socket.on(SocketIOEvent.connecting, () async {
   final isConnected = await socket.isConnected();
@@ -28,9 +29,17 @@ await socket.on(SocketIOEvent.connectError, (error) {
   print('Error: $error');
 });
 await socket.on('sayHello', (greeting) {
-  print('Hello ${greeting['Hello']}');
+  print('Hello, ${greeting['Hello']}');
 });
 await socket.connect();
+```
+#### Log
+```
+I/flutter: Is connected? No.
+           Connecting...
+I/flutter: Connected.
+I/flutter: Is connected? Yes.
+I/flutter: Hello, world!
 ```
 
 ### Node.js Socket.IO Server:

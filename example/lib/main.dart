@@ -16,7 +16,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   initialize() async {
-    const uri = 'http://192.168.1.39:8080';
+    const uri = 'http://192.168.1.38:8080';
     final socket = await SocketIO.createNewInstance(uri);
     await socket.on(SocketIOEvent.connecting, () async {
       final isConnected = await socket.isConnected();
@@ -32,10 +32,9 @@ class _MyAppState extends State<MyApp> {
       print('Error: $error');
     });
     await socket.on('sayHello', (greeting) {
-      print('Hello ${greeting['Hello']}');
+      print('Hello, ${greeting['Hello']}');
     });
     await socket.connect();
-    print(await socket.isConnected());
   }
 
   @override
