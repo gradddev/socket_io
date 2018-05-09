@@ -71,10 +71,18 @@ class SocketIoPlugin private constructor(
           result.success(null)
         }
         "emit" -> {
-          // TODO
+          val event = call.argument<String>("event")
+          val arguments = call.argument<List<Any>>("arguments")
+          emit(event, arguments)
+          result.success(null)
         }
         "isConnected" -> {
-          result.success(isConnected())
+          val isConnected = socket.connected()
+          result.success(isConnected)
+        }
+        "id" -> {
+          val id = socket.id()
+          result.success(id)
         }
         else -> result.notImplemented()
       }
@@ -114,7 +122,14 @@ class SocketIoPlugin private constructor(
     listeners.remove(listenerId)
   }
 
-  private fun isConnected(): Boolean {
-    return socket.connected()
+  private fun emit(event: String, rawArguments: List<Any>) {
+    val arguments = rawArguments.map { argument ->
+      when (argument) {
+        is List<*> -> return@map JSONArray(argument)
+        is Map<*, *> -> return@map JSONObject(argument)
+        else -> return@map argument
+      }
+    }
+    socket.emit(event, *arguments.toTypedArray())
   }
 }

@@ -52,12 +52,12 @@ class SocketIO {
   /// TODO
   final Map<String, Map<String, Function>> _listeners = {};
 
-  /// TODO
+  /// Manually opens the socket.
   connect() async {
     await _methodChannel.invokeMethod('connect');
   }
 
-  /// TODO
+  /// Register a new handler for the given event.
   on(String event, Function listener) async {
     final listenerId = await _methodChannel.invokeMethod('on', {
       'event': event,
@@ -85,9 +85,25 @@ class SocketIO {
     });
   }
 
+  /// An unique identifier for the socket session.
+  ///
+  /// Set after the [SocketIOEvent.connect] event is triggered,
+  /// and updated after the [SocketIOEvent.reconnect] event.
+  Future<String> get id async {
+    return await _methodChannel.invokeMethod('id');
+  }
+
   /// TODO
-  isConnected() async {
+  Future<bool> get isConnected async {
     return await _methodChannel.invokeMethod('isConnected');
+  }
+
+  /// Emits an event to the socket identified by the string name.
+  emit(String event, List<dynamic> arguments) async {
+    await _methodChannel.invokeMethod('emit', {
+      'event': event,
+      'arguments': arguments,
+    });
   }
 
   /// TODO
@@ -114,36 +130,39 @@ class SocketIO {
 
 /// TODO
 class SocketIOEvent {
-  /// TODO
+  /// Fired upon a connection including a successful reconnection.
   static const connect = 'connect';
+
+  /// Fired upon a connection error.
+  static const connectError = 'connect_error';
+
+  /// Fired upon a connection timeout.
+  static const connectTimeout = 'connect_timeout';
+
+  /// Fired when an error occurs.
+  static const error = 'error';
 
   /// TODO
   static const connecting = 'connecting';
 
-  /// TODO
-  static const connectError = 'connect_error';
-
-  /// TODO
-  static const connectTimeout = 'connect_timeout';
-
-  /// TODO
+  /// Fired upon a successful reconnection.
   static const reconnect = 'reconnect';
 
-  /// TODO
+  /// Fired upon a reconnection attempt error.
   static const reconnectError = 'reconnect_error';
 
   /// TODO
   static const reconnectFailed = 'reconnect_failed';
 
-  /// TODO
+  /// Fired upon an attempt to reconnect.
   static const reconnectAttempt = 'reconnect_attempt';
 
-  /// TODO
+  /// Fired upon an attempt to reconnect.
   static const reconnecting = 'reconnecting';
 
-  /// TODO
+  /// Fired when a ping packet is written out to the server.
   static const ping = 'ping';
 
-  /// TODO
+  /// Fired when a pong is received from the server.
   static const pong = 'pong';
 }

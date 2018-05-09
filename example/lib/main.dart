@@ -19,14 +19,13 @@ class _MyAppState extends State<MyApp> {
     const uri = 'http://192.168.1.38:8080';
     final socket = await SocketIO.createNewInstance(uri);
     await socket.on(SocketIOEvent.connecting, () async {
-      final isConnected = await socket.isConnected();
-      print('Is connected? ${isConnected ? 'Yes.' : 'No.'}');
       print('Connecting...');
     });
     await socket.on(SocketIOEvent.connect, () async {
       print('Connected.');
-      final isConnected = await socket.isConnected();
-      print('Is connected? ${isConnected ? 'Yes.' : 'No.'}');
+
+      final id = await socket.id;
+      print('Client SocketID: $id');
     });
     await socket.on(SocketIOEvent.connectError, (error) {
       print('Error: $error');
@@ -35,6 +34,9 @@ class _MyAppState extends State<MyApp> {
       print('Hello, ${greeting['Hello']}');
     });
     await socket.connect();
+    await socket.emit('sayHello', [
+      {'Hello': 'world!'},
+    ]);
   }
 
   @override
