@@ -13,18 +13,22 @@ For help on editing plugin code, view the [documentation](https://flutter.io/pla
 ### Client
 ```dart
 const uri = 'http://192.168.1.39:8080';
-final socket = await SocketIo.newInstance(uri);
-await socket.on(SocketIoEvent.connecting, () {
+final socket = await SocketIO.createNewInstance(uri);
+await socket.on(SocketIOEvent.connecting, () async {
+  final isConnected = await socket.isConnected();
+  print('Is connected? ${isConnected ? 'Yes.' : 'No.'}');
   print('Connecting...');
 });
-await socket.on(SocketIoEvent.connect, () {
+await socket.on(SocketIOEvent.connect, () async {
   print('Connected.');
+  final isConnected = await socket.isConnected();
+  print('Is connected? ${isConnected ? 'Yes.' : 'No.'}');
 });
-await socket.on(SocketIoEvent.connectError, (error) {
+await socket.on(SocketIOEvent.connectError, (error) {
   print('Error: $error');
 });
 await socket.on('sayHello', (greeting) {
-  print(greeting);
+  print('Hello ${greeting['Hello']}');
 });
 await socket.connect();
 ```
