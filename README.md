@@ -1,8 +1,8 @@
-# socket_io (alpha)
+# socket_io
 
 The Socket.IO plugin for the Flutter.
 
-Only Android currently supported, but I'm working on the iOS version.
+Currently, only beta version ready for the Android.
 
 ## Getting Started
 
