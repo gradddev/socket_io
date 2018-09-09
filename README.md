@@ -1,8 +1,8 @@
+**Currently, I don't plan to finish the development.**
+
 # socket_io
 
 The Socket.IO plugin for the Flutter.
-
-Currently, only beta version ready for the Android.
 
 ## Getting Started
 
