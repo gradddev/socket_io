@@ -1,5 +1,3 @@
-**Currently, I don't plan to finish the development.**
-
 # socket_io
 
 The Socket.IO plugin for the Flutter.
