@@ -3,6 +3,8 @@ description: The Socket.IO plugin for the Flutter.
 version: 0.1.0
 author:
 homepage:
+environment:
+  sdk: '>=2.0.0 <3.0.0'
 
 dependencies:
   flutter:
