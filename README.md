@@ -2,6 +2,8 @@
 
 The Socket.IO plugin for the Flutter.
 
+[Donate](https://www.paypal.me/semigradsky)
+
 ## Getting Started
 
 For help on editing plugin code, view the [documentation](https://flutter.io/platform-plugins/#edit-code).
