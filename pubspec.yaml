@@ -1,8 +1,8 @@
 name: socket_io
 description: The Socket.IO plugin for the Flutter.
 version: 0.1.0
-author:
-homepage:
+author: Alexey Semigradsky <alexey@semigradsky.com>
+homepage: https://github.com/AlexeySemigradsky/socket_io
 environment:
   sdk: '>=2.0.0 <3.0.0'
 
