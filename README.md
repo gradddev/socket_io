@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
 
 server.listen(8080);
 ```
-#### Logs
+#### Log
 ```
 Client SocketID: ska0utZ3GlmA8cC6AAAA.
 Hello, world!
