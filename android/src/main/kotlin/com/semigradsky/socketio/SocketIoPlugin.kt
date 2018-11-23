@@ -33,7 +33,7 @@ class SocketIoPlugin private constructor(
       channel.setMethodCallHandler { call: MethodCall, result: Result ->
         when (call.method) {
           "createNewInstance" -> {
-            val uri = call.argument<String>("uri")
+            val uri = call.argument<String>("uri") as String
             val instanceId = UUID.randomUUID().toString()
             SocketIoPlugin(registrar, instanceId, uri)
             result.success(instanceId)
@@ -60,19 +60,19 @@ class SocketIoPlugin private constructor(
           result.success(null)
         }
         "on" -> {
-          val event = call.argument<String>("event")
+          val event = call.argument<String>("event") as String
           val listenerId = on(event)
           result.success(listenerId)
         }
         "off" -> {
-          val event = call.argument<String>("event")
-          val listenerId = call.argument<ListenerId>("listenerId")
+          val event = call.argument<String>("event") as String
+          val listenerId = call.argument<ListenerId>("listenerId") as ListenerId
           off(event, listenerId)
           result.success(null)
         }
         "emit" -> {
-          val event = call.argument<String>("event")
-          val arguments = call.argument<List<Any>>("arguments")
+          val event = call.argument<String>("event") as String
+          val arguments = call.argument<List<Any>>("arguments") as List<Any>
           emit(event, arguments)
           result.success(null)
         }
